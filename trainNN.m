@@ -1,4 +1,4 @@
-function [] = trainNN()
+function [gammas,rhos,gmag, errorTRM1] = trainNN(W1,W2,bias1,bias2)
 
 % two layers
 % we have w = {W1, W2}, g = {GradW1, GradW2}
@@ -14,7 +14,7 @@ start = 300;
  
 k0 = 20;
  
-m = 1500;
+m = 100;
 inputs = images(start+1:start+k0,1:m);
 labels = labels(1:m);
 
@@ -34,6 +34,7 @@ n2 = 10;
 
 n = n0*n1 + n1*n2 + n1 + n2;
 
+
 % + 1 for the bias
 W1 = rand(n1, n0);
 W1 = W1/sum(sum(abs(W1)));
@@ -44,28 +45,38 @@ bias1 = rand(n1,1);
 bias2 = rand(n2,1);
 
 
-
-
-
-
-%[~,~,~,~,errorTRM] = train_TRM(inputs,outputs, W1, W2, bias1, bias2, n1); 
-%[~,~,~,~,errorSTRM] = train_STRM(inputs,outputs, W1, W2, bias1, bias2, n1);
-[~,~,~,~,errorSTRM_RMI] = train_STRM_RMI(inputs,outputs, W1, W2, bias1, bias2, n1);
-%[~,~,~,~,errorMBTRM] = train_MBTRM(inputs,outputs, W1, W2, bias1, bias2, n1, 10);
-%[~,~,~,~,errorBTRM] = train_BTRM(inputs,outputs, W1, W2, bias1, bias2, n1, 200);
+%[W1,W2,bias1,bias2,~] =  train_BTRM_WS(inputs,outputs, W1, W2, bias1, bias2, n1,500,30);
+[W1,W2,bias1,bias2,~] =  train_MBTRM_WS(inputs,outputs, W1, W2, bias1, bias2, n1,10,10);
+%[W1,W2,bias1,bias2,~] =  train_STRM_WS(inputs,outputs, W1, W2, bias1, bias2, n1, 10);
+%[W1,W2,bias1,bias2,~] =  train_TRM_WS(inputs,outputs, W1, W2, bias1, bias2, n1, 3);
+%[W1,W2,bias1,bias2,~] =  train_GD(inputs,outputs, W1, W2, bias1, bias2);
+%[W1,W2,bias1,bias2,errorTRM1, gammas, rhos, gmag] = train_TRM(inputs,outputs, W1, W2, bias1, bias2, n1, 100); 
+%[~,~,~,~,errorTRM2] = train_TRM(inputs,outputs, W1, W2, bias1, bias2, n1, 10000); 
+%[W1,W2,bias1,bias2,errorSTRM] = train_STRM(inputs,outputs, W1, W2, bias1, bias2, n1);
+%[~,~,~,~,errorSTRM_RMI] = train_STRM_RMI(inputs,outputs, W1, W2, bias1, bias2, n1);
+%[W1,W2,bias1,bias2,errorMBTRM] = train_MBTRM(inputs,outputs, W1, W2, bias1, bias2, n1, 10);
+%[W1,W2,bias1,bias2,errorBTRM] = train_BTRM(inputs,outputs, W1, W2, bias1, bias2, n1, 200);
 print_accuracy(inputs,labels, W1, W2, bias1, bias2);
-plot(errorSTRM_RMI);
-plot(errorTRM);
-hold on;
-plot(errorSTRM);
-hold on;
-plot(errorMBTRM);
-hold on;
-plot(errorBTRM);
-disp('results:');
-%disp(bias1);
-%disp(bias2);
-%disp(W1);
-%disp(W1);
+
+if false
+    plot(errorTRM1);
+    hold on;
+    plot(errorTRM2);
+    legend('TRM1','TRM2');
+    return;
+    plot(errorSTRM);
+    hold on;
+    plot(errorMBTRM);
+    hold on;
+    plot(errorBTRM);
+    hold on;
+    plot(errorSTRM_RMI);
+    legend('TRM','STRM','MBTRM','BTRM','STRM_RMI');
+    disp('results:');
+    %disp(bias1);
+    %disp(bias2);
+    %disp(W1);
+    %disp(W1);
+end
     
     

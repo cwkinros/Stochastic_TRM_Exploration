@@ -24,6 +24,9 @@ options.maxit = 40;
 
 iterations = 200;
 error = zeros(iterations,1);
+if b > m
+    b = m/2;
+end
 for k = 1:iterations
     proceed = true;
     is = randperm(m,b);
@@ -40,7 +43,7 @@ for k = 1:iterations
     g2_1s = sigmoid_1(h2s);
     g1_1s = sigmoid_1(h1s);
     
-    gradW2 = (errors.*g2_1s)*h1s.';
+    gradW2 = (errors.*g2_1s)*g1s.';
     grad_bias2 = (errors.*g2_1s)*ones(b,1);
     dg1s = ((errors.*g2_1s).'*W2).';
     gradW1 = (dg1s.*g1_1s)*inputs(:,is).';
@@ -71,8 +74,7 @@ for k = 1:iterations
         v = real(v);
         disp('lam:');
         disp(lam);
-        p= v(n+1:2*n);
-        p = p/sqrt(p.'*p)*gamma;
+        p = - (gamma^2)*v(1:n) / (g.'*v(n+1:2*n));
         [P1_1, P1_2, P1_bias1, P1_bias2] = m_to_M1M2(p,n0,n1,n2);
 
         W1 = W1 + P1_1;
@@ -89,7 +91,7 @@ for k = 1:iterations
         g2s_temp = sigmoid(h2s_temp);
 
         errors = (g2s_temp - outputs(:,is));
-        next_error1 = sum(sum(errors.'*errors));
+        next_error1 = sum(sum(errors.*errors));
 
 
 
@@ -101,15 +103,15 @@ for k = 1:iterations
         
         rho = (next_error - error_little) / sigma;
         
-        if rho > lb
-            W1 = W1 + P1;
-            W2 = W2 + P2;
-            bias1 = bias1 + P_bias1;
-            bias2 = bias2 + P_bias2;
-            if rho > ub
-                gamma = gamma*grow;
-            end
-        else 
+
+        if rho > ub
+            gamma = gamma*grow;
+        end
+        if rho < lb
+            W1 = W1 - P1_1;
+            W2 = W2 - P1_2;
+            bias1 = bias1 - P1_bias1;
+            bias2 = bias2 - P1_bias2;            
             gamma = gamma*shrink;
         end     
     end
