@@ -14,7 +14,7 @@ start = 300;
  
 k0 = 20;
  
-m = 1500;
+m = 60000;
 inputs = images(start+1:start+k0,1:m);
 labels = labels(1:m);
 
