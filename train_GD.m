@@ -2,7 +2,7 @@ function [W1, W2, bias1, bias2, error] = train_GD(inputs, outputs, W1, W2, bias1
 
 [~,m] = size(inputs);
 lambda =0.00001;
-lr = 0.1;
+lr = 0.0001;
 
 
 iterations = 150000;
@@ -37,6 +37,11 @@ for k = 1:iterations
     W2 = W2 - lr*gradW2;
     bias1 = bias1 - lr*grad_bias1;
     bias2 = bias2 - lr*grad_bias2;
+    
+    if sum(sum(abs(gradW2))) + sum(sum(abs(gradW1))) + sum(abs(grad_bias1)) + sum(abs(grad_bias2)) < 0.0000000001
+        break;
+    end
+        
   
 end
 

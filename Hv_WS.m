@@ -37,7 +37,7 @@ R_dW1 = part1 + part2;
 
 R_dbias1 = (R_dg1s.').*g1_1s + dg1s.*g1_2s.*(V1*inputs + bias_v1*ones(1,m));
 
-hv = M1M2_to_m(R_dW1,R_dW2,R_dbias1,R_dbias2) + lambda;
+hv = M1M2_to_m(R_dW1,R_dW2,R_dbias1,R_dbias2) + lambda*v;
 
 small_hv = zeros(Sn,1);
 

@@ -69,7 +69,7 @@ for k = 1:iterations
                
         next_error1 = getError(W1+P1_1,W2+P1_2,bias1+P1_bias1,bias2+P1_bias2,inputs,outputs,lambda,m);
         
-        [p0,flag] = cgs(@(v)Hv(v,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, lambda),-g,0.000001,100000*n);
+        [p0,flag] = cgs(@(v)Hv(v,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, lambda),-g,0.000000001,10000000000*n);
         %[p0, flag] = pcg(@(v)Hv(v,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, lambda),-g,0.001,10*n);
         %[p0, flag] = lsqr(@(v,word)Hv(v,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, lambda),-g,0.01,10*n);
         
@@ -87,15 +87,7 @@ for k = 1:iterations
             I = eye(n);
             for i = 1:n
                 H(:,i) = Hv(I(:,i),W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, lambda);
-            end
-            [L,U] = ilu(sparse(H),struct('type','ilutp','droptol',1e-6));
-            [p0,flag] = cgs(H,-g,0.0000000001,100000*n,L,U);
-            if flag == 0
-                norm_p0 = sqrt(p0.'*p0);
-            else
-                norm_p0 = gamma + 1;
-            end
-        end
+                
                 
         
         if norm_p0 < gamma

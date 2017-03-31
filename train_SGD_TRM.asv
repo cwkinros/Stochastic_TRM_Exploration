@@ -9,7 +9,7 @@ lambda =0.00001;
 a = 10000;
 b = 5000;
 
-iterations = 30000;
+iterations = 50000;
 error = zeros(iterations,1);
 min = inf;
 iter_since_last_min = 0;
@@ -30,7 +30,7 @@ for k = 1:iterations
     g2s = sigmoid(h2s);
 
     errors = (g2s - outputs(:,i));
- 
+
     error(k) = getError(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
     if (error(k) < min)
         min = error(k);
@@ -53,36 +53,31 @@ for k = 1:iterations
     
     if iter_since_last_min > thresh
         g = M1M2_to_m(gradW1,gradW2,grad_bias1,grad_bias2);
-        
-        
-        next_error = error(k) + 1;
-        gamma = 2;
-        while next_error > error(k)
+        proceed = true;
+        try
+    
+             M1 = [zeros(n), eye(n); eye(n), zeros(n)];
+            [g,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
+            [v,lam,flag] = eigs(@(x)M0x(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda),2*n,-M1,1,'lr',options);
+        catch 
+            disp('no good dir');
+
+            proceed = false;
             gamma = gamma/2;
-            proceed = true;
-            try
-                M1 = [zeros(n), eye(n); eye(n), zeros(n)];
-                [g,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,~] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
-                [v,lam,flag] = eigs(@(x)M0x(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda),2*n,-M1,1,'lr',options);
-            catch 
-                disp('no good dir');
+       
+        end      
+        if proceed
+            disp('TRM');
+            v = real(v);
+            p = - (gamma^2)*v(1:n) / (g.'*v(n+1:2*n));
+            [P1_1, P1_2, P1_bias1, P1_bias2] = m_to_M1M2(p,n0,n1,n2);
 
-                proceed = false;
-
-            end      
-            if proceed
-                disp('TRM');
-                v = real(v);
-                p = - (gamma^2)*v(1:n) / (g.'*v(n+1:2*n));
-                [P1_1, P1_2, P1_bias1, P1_bias2] = m_to_M1M2(p,n0,n1,n2);
-                next_error = getError(W1+P1_1,W2+P1_2,bias1+P1_bias1,bias2+P1_bias2,inputs,outputs,lambda,m);
-            end
+            W1 = W1 + P1_1;
+            W2 = W2 + P1_2;
+            bias1 = bias1 + P1_bias1;
+            bias2 = bias2 + P1_bias2;
+            gamma = 1;
         end
-        
-        W1 = W1 + P1_1;
-        W2 = W2 + P1_2;
-        bias1 = bias1 + P1_bias1;
-        bias2 = bias2 + P1_bias2;
     else
         W1 = W1 - lr*gradW1;
         W2 = W2 - lr*gradW2;
@@ -91,6 +86,3 @@ for k = 1:iterations
     end    
 
 end
-
-plot(error);
-legend('SGD','SGD + TRM');

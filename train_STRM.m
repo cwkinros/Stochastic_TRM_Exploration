@@ -17,7 +17,7 @@ b = 5000;
 n = n0*n1 + n1*n2 + n1 + n2;
 gamma = a/b;
 
-options.issym = 1;
+options.issym = 0;
 options.isreal = 1;
 options.maxit = 20;
 

@@ -5,7 +5,7 @@ lambda =0.00001;
 a = 10000;
 b = 5000;
 
-iterations = 50000;
+iterations = 30000;
 error = zeros(iterations,1);
 
 for k = 1:iterations
@@ -41,3 +41,5 @@ for k = 1:iterations
     bias2 = bias2 - lr*grad_bias2;
   
 end
+plot(error);
+hold on;
