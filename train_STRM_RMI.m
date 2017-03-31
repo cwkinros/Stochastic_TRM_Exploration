@@ -37,7 +37,7 @@ for k = 1:iterations
     g2_1s = sigmoid_1(h2s);
     g1_1s = sigmoid_1(h1s);
     
-    gradW2 = (errors.*g2_1s)*h1s.';
+    gradW2 = (errors.*g2_1s)*g1s.';
     grad_bias2 = (errors.*g2_1s);
     dg1s = ((errors.*g2_1s).'*W2).';
     gradW1 = (dg1s.*g1_1s)*inputs(:,i).';
@@ -68,34 +68,8 @@ for k = 1:iterations
         v = real(v);
         disp('lam:');
         disp(lam);
-        p= v(n+1:2*n);
-        p = p/sqrt(p.'*p)*gamma;
-        [P1_1, P1_2, P1_bias1, P1_bias2] = m_to_M1M2(p,n0,n1,n2);
-
-        W1 = W1 + P1_1;
-        W2 = W2 + P1_2;
-        bias1 = bias1 + P1_bias1;
-        bias2 = bias2 + P1_bias2;
-
-        sigma = g.'*p + 0.5*p.'*Hv(p,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs(:,i));
-        % calculate the change in error
-        h1s_temp = W1*inputs(:,i) + bias1;
-        g1s_temp = sigmoid(h1s_temp);
-
-        h2s_temp = W2*g1s_temp + bias2;
-        g2s_temp = sigmoid(h2s_temp);
-
-        errors = (g2s_temp - outputs(:,i));
-        next_error1 = sum(sum(errors.'*errors));
-
-
-
-        next_error = next_error1;
-        P1 = P1_1;
-        P2 = P1_2;
-        P_bias1 = P1_bias1;
-        P_bias2 = P1_bias2;             
-
+        p = - (gamma^2)*v(1:n) / (g.'*v(n+1:2*n));
+        [P1, P2, P_bias1, P_bias2] = m_to_M1M2(p,n0,n1,n2);
 
         W1 = W1 + P1;
         W2 = W2 + P2;
