@@ -65,7 +65,7 @@ for k = 1:iterations
       
         next_error1 = getError(W1+P1_1,W2+P1_2,bias1+P1_bias1,bias2+P1_bias2,inputs,outputs,lambda,m);
         
-        [p0,flag] = cgs(@(v)Hv_WS(v,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, lambda, indices,b),-g,0.5,10);
+        [p0,flag] = minres(@(v)Hv_WS(v,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, lambda, indices,b),-g,0.000001,10000);
         if flag == 0
             disp('p0 is valid');
             norm_p0 = sqrt(p0.'*p0);

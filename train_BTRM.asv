@@ -66,7 +66,7 @@ for k = 1:iterations
         next_error1 = getError(W1+P1_1,W2+P1_2,bias1+P1_bias1,bias2+P1_bias2,inputs(:,is),outputs(:,is),lambda,b);
         
         norm_p0 = gamma + 1;
-        if sigma > -10^-4 % indicates that it's almost Positive definite
+        if sigma > 10^-4 % indicates that it's almost Positi
             [p0, flag] = pcg(@(v)Hv(v,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs(:,is), lambda),-g,0.001,10*n);
             if flag == 0
                 disp('p0 is valid, norm:');

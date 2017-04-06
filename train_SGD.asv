@@ -40,8 +40,8 @@ for k = 1:iterations
     bias1 = bias1 - lr*grad_bias1;
     bias2 = bias2 - lr*grad_bias2;
     
-    g = M1M2_to_m(gradW1,gradW2,grad_bias1,grad_bias2);
-    if sqrt(g.'*g) < (10^-8)
+    [g,~,~,~,~,~,~,~] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m); 
+    if lr*sqrt(g.'*g) < (10^-1)
         break;
     end
 end
