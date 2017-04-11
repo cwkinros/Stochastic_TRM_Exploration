@@ -1,4 +1,4 @@
-function [] = print_accuracy(inputs,labels,W1,W2, bias1, bias2)
+function [] = print_accuracy(inputs,labels,W1,W2, bias1, bias2, tofile, file)
 [~,a] = size(inputs);
 
 h1 = W1*inputs + bias1*ones(1,a);
@@ -27,7 +27,10 @@ for i = 1:c
 end
 
 accuracy = sum / c;
-
-disp('accuracy:');
-disp(accuracy);
+if tofile
+    fprintf(file, 'accuracy: %f', accuracy);
+else
+    disp('accuracy:');  
+    disp(accuracy);
+end
 

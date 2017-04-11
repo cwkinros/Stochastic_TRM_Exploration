@@ -1,13 +1,14 @@
-function [p1,sigma, next_error1, converged] = getP1(g,gamma,W1,W2,bias1,bias2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,outputs,lambda,WS,indices,b)
+function [p1,sigma, next_error1, converged] = getP1(g,gamma,W1,W2,bias1,bias2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,outputs,lambda,WS,indices,b,tol,maxiter)
 
 
-options.maxit = 10000;
+options.maxit = maxiter;
 options.isreal = 1;
 options.issym = 0;
-options.tol = 0.1;
-[n,~] = size(g);
+options.tol = tol;
+
 [n1,n0] = size(W1);
 [n2,~] = size(W2);
+n = n2*(n1 + 1) + n1*(n0 + 1);
 [~,m] = size(inputs);
 converged = true;
 try
@@ -33,7 +34,7 @@ if converged
         for i = 1:b
             p1(indices(i)) = small_p(i);
         end 
-        sigma = g.'*p1 + 0.5*p1.'*Hv_WS(p1,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda,indices,b);
+        sigma = g.'*small_p + 0.5*small_p.'*Hv_WS(small_p,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda,indices,b);
         
     else
         p1 = - (gamma^2)*v(1:n) / (g.'*v(n+1:2*n));

@@ -1,9 +1,8 @@
-function [W1, W2, bias1, bias2, error, gammas, rhos, gmag] = train_TRM(inputs, outputs, W1, W2, bias1, bias2, n1,maxiter)
+function [W1, W2, bias1, bias2] = train_TRM(inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file)
 
 [n0,m] = size(inputs);
 [n2,~] = size(outputs);
-lambda =0.01;
-lr = 0.02;
+lambda =0.0001;
 
 h1s = zeros(n1,m);
 g1s = zeros(n1,m);
@@ -18,27 +17,24 @@ shrink = 0.5;
 n = n0*n1 + n1*n2 + n1 + n2;
 gamma = 1;
 
-options.issym = 0;
-options.isreal = 1;
-options.maxit = maxiter;
 
-iterations =100;
-error = zeros(iterations,1);
-gmag = double(zeros(iterations,1));
-rhos = zeros(iterations,1);
-gammas = zeros(iterations,1);
-prob_next_error = 0;
-for k = 1:iterations
-    
-    [g,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,error(k)] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
-    
-    last_error = error(k);
-    disp(error(k));
-    gmag(k) = sqrt(g.'*g);
 
-    [p1, sigma_p1, next_error1, valid_p1] = getP1(g,gamma,W1,W2,bias1,bias2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,outputs,lambda,false,0,0);
-    [p0, sigma_p0, next_error0, valid_p0] = getP0(W1,W2,bias1,bias2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,outputs,lambda,g,gamma,false,0,0);
-    
+sub_tol = 0.001;
+sub_maxit = 1000;
+tol = 10^-8;
+if tofile
+    fprintf(file,'TRM: ub=%f, lb=%f, grow=%f, shrink=%f, lambda=%f, n=%d, n0=%d, n1=%d, n2=%d, sub_tol=%f, sub_maxit=%d, tol=%e, m=%d \n',ub,lb,grow,shrink,lambda,n,n0,n1,n2,sub_tol,sub_maxit,tol,m);
+    fprintf(file,'time, time g, time p1, time p0, total error, total gmag, rho, sigma, gamma, step, approx error, approx gmag \n');
+end
+for k = 1:maxiter
+    tic
+    [g,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,last_error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
+   
+    tg = toc;
+    [p1, sigma_p1, next_error1, valid_p1] = getP1(g,gamma,W1,W2,bias1,bias2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,outputs,lambda,false,0,0,sub_tol,sub_maxit);
+    t1_post = toc; 
+    [p0, sigma_p0, next_error0, valid_p0] = getP0(W1,W2,bias1,bias2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,outputs,lambda,g,gamma,false,0,0,sub_tol,sub_maxit);
+    t0_post = toc;
     step = 2; % 2 indicates no valid step, 1 indicates p1, 0 indicates p0
     
  
@@ -82,8 +78,17 @@ for k = 1:iterations
         gamma = gamma*shrink;
     end
 
-    if (gmag(k) < 10^-8)
+    if ((1/m)*sqrt(g.'*g) < tol)
         break;
     end
-
+    
+    t = toc;
+    if mod(k,50) == 0;
+        disp(k);
+    end
+    if tofile
+        fprintf(file,'%d, %d, %d, %d, %f, %e, %e, %f, %e, %d, %f, %e \n', t, tg, t1_post - tg, t0_post - t1_post, last_error, (1/m)*sqrt(g.'*g), rho, sigma, gamma, step, last_error, (1/m)*sqrt(g.'*g));
+    else
+        disp(last_error);
+    end
 end
