@@ -28,7 +28,7 @@ end
 
 accuracy = sum / c;
 if tofile
-    fprintf(file, 'accuracy: %f', accuracy);
+    fprintf(file, '%f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0', accuracy);
 else
     disp('accuracy:');  
     disp(accuracy);

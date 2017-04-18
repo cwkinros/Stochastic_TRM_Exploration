@@ -8,7 +8,9 @@ h2s = W2*g1s + bias2*ones(1,m);
 g2s = sigmoid(h2s);
 
 errors = (g2s - outputs);
-error = 0.5*sum(sum(errors.*errors)) + 0.5*lambda*(sum(sum(W1.*W1)) + sum(sum(W2.*W2)) + sum(bias1.*bias1) + sum(bias2.*bias2));
+actual_error = 0.5*sum(sum(errors.*errors));
+reg_error = 0.5*lambda*(sum(sum(W1.*W1)) + sum(sum(W2.*W2)) + sum(bias1.*bias1) + sum(bias2.*bias2));
+error = (1/m)*actual_error + reg_error;
 g2_1s = sigmoid_1(h2s);
 g1_1s = sigmoid_1(h1s);
 
@@ -18,10 +20,10 @@ dg1s = ((errors.*g2_1s).'*W2).';
 gradW1 = (dg1s.*g1_1s)*inputs.';
 grad_bias1 = (dg1s.*g1_1s)*ones(m,1);
 
-gradW2 = gradW2 + lambda*W2;
-gradW1 = gradW1 + lambda*W1;
-grad_bias1 = grad_bias1 + lambda*bias1;
-grad_bias2 = grad_bias2 + lambda*bias2;
+gradW2 = (1/m)*gradW2 + lambda*W2;
+gradW1 = (1/m)*gradW1 + lambda*W1;
+grad_bias1 = (1/m)*grad_bias1 + lambda*bias1;
+grad_bias2 = (1/m)*grad_bias2 + lambda*bias2;
 
 % all the updates
 

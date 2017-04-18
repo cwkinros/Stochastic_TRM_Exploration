@@ -9,12 +9,11 @@ labels = loadMNISTLabels('train-labels.idx1-ubyte');
 %k0 = 784;
 start = 300;
  
-k0 = 25;
  
 
-m = 60000;
+m = 10;
 
-inputs = images(start+1:start+k0,1:m);
+inputs = downsample_mnist(images(:,1:m));
 labels = labels(1:m);
 
 outputs = zeros(10,m);
@@ -27,7 +26,7 @@ end
 
 % make sure to include a bias
 
-n0 = k0; 
+n0 = 100; 
 n1 = 10;
 n2 = 10;
 
@@ -43,17 +42,19 @@ W2 = W2/sum(sum(abs(W2)));
 bias1 = rand(n1,1) - 0.5;
 bias2 = rand(n2,1) - 0.5;
 
+
+
 maxiter = 100000000;
 
 %---------------------- test full TRM ------------------------------------
-disp('test full TRM');
-WS = false;
-MS = 0;
-TRMstep = true;
-tofile = true;
-file = fopen('results/TRM.txt','w');
-[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
+%disp('test full TRM');
+%WS = false;
+%MS = 0;
+%TRMstep = true;
+%tofile = true;
+%file = fopen('results/TRM.txt','w');
+%[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
+%print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
 %---------------------- test TRM_WS ------------------------------------
 disp('test TRM_WS');

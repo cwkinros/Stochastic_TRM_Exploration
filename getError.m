@@ -8,4 +8,4 @@ g2s_temp = sigmoid(h2s_temp);
 
 
 errors = (g2s_temp - outputs);
-error = 0.5*sum(sum(errors.*errors))+ 0.5*lambda*(sum(sum(W1.*W1)) + sum(sum(W2.*W2)) + sum(bias1.*bias1) + sum(bias2.*bias2));
+error = (1/m)*0.5*sum(sum(errors.*errors))+ 0.5*lambda*(sum(sum(W1.*W1)) + sum(sum(W2.*W2)) + sum(bias1.*bias1) + sum(bias2.*bias2));

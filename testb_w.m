@@ -9,10 +9,10 @@ labels = loadMNISTLabels('train-labels.idx1-ubyte');
 %k0 = 784;
 start = 300;
  
-k0 = 25;
+k0 = 10;
  
 
-m = 100;
+m = 50;
 
 inputs = images(start+1:start+k0,1:m);
 labels = labels(1:m);
@@ -43,7 +43,7 @@ W2 = W2/sum(sum(abs(W2)));
 bias1 = rand(n1,1) - 0.5;
 bias2 = rand(n2,1) - 0.5;
 
-maxiter = 30000;
+maxiter = 5000;
 
 %---------------------- test TRM_WS ------------------------------------
 disp('test TRM_WS');
@@ -57,7 +57,7 @@ b_m_big = 0;
 a = 0; 
 b = 0;
 % note m = 350
-for b_w = 25:25:350
+for b_w = 2:2:20
     disp(b_w);
     file = fopen(strcat('results/TRM_WS',int2str(b_w),'.txt'),'w');
     [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, a, b);

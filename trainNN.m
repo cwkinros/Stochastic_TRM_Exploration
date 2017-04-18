@@ -8,16 +8,14 @@ images = loadMNISTImages('train-images.idx3-ubyte');
 % labels: 60000 by 1 matrix (vector) of labels 
 labels = loadMNISTLabels('train-labels.idx1-ubyte');
  
+
 % number of inputs k0
 %k0 = 784;
-start = 300;
- 
-k0 = 25;
  
 
 m =100;
 
-inputs = images(start+1:start+k0,1:m);
+inputs = downsample_mnist(images(:,1:m));
 labels = labels(1:m);
 
 outputs = zeros(10,m);
@@ -30,7 +28,7 @@ end
 
 % make sure to include a bias
 
-n0 = k0; 
+n0 = 100; 
 n1 = 10;
 n2 = 10;
 
@@ -55,11 +53,11 @@ file = fopen('results/TRM_test1.txt','w');
 %[W1,W2,bias1,bias2,~] =  train_SGD(inputs,outputs, W1, W2, bias1, bias2);
 %[W1,W2,bias1,bias2,errorTRM1, gammas, rhos, gmag] = train_TRM(inputs,outputs, W1, W2, bias1, bias2, n1, 100); 
 
-[W1,W2,bias1,bias2] = train_TRM(inputs,outputs, W1, W2, bias1, bias2, n1,100, true, file); 
+[W1,W2,bias1,bias2] = train_TRM_united(true,0,true,inputs,outputs, W1, W2, bias1, bias2, n1,1000,false,0); 
 %[W1,W2,bias1,bias2,errorSTRM] = train_STRM(inputs,outputs, W1, W2, bias1, bias2, n1);
 %[~,~,~,~,errorSTRM_RMI] = train_STRM_RMI(inputs,outputs, W1, W2, bias1, bias2, n1);
 %[W1,W2,bias1,bias2,errorMBTRM] = train_MBTRM(inputs,outputs, W1, W2, bias1, bias2, n1, 10);
 %[W1,W2,bias1,bias2,errorBTRM] = train_BTRM(inputs,outputs, W1, W2, bias1, bias2, n1, 300);
-print_accuracy(inputs,labels, W1, W2, bias1, bias2, true, file);
+print_accuracy(inputs,labels, W1, W2, bias1, bias2, false, 0);
 
     

@@ -14,6 +14,7 @@ converged = true;
 try
     if WS
         M1 = [zeros(b), eye(b); eye(b), zeros(b)];
+        disp('here');
         [v,~,flag] = eigs(@(x)M0x_WS(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, indices,lambda),2*b,-M1,1,'lr',options);
     else
         M1 = [zeros(n), eye(n); eye(n), zeros(n)];
@@ -29,7 +30,8 @@ end
 
 if converged
     if WS
-        small_p = - (gamma^2)*v(1:b) / (g.'*v(b+1:2*b));
+        small_p = -sign(g.'*v(b+1:2*b))*gamma*v(1:b)/sqrt(v(1:b).'*v(1:b));
+        %small_p = - (gamma^2)*v(1:b) / (g.'*v(b+1:2*b));
         p1 = zeros(n,1);
         for i = 1:b
             p1(indices(i)) = small_p(i);
@@ -37,7 +39,8 @@ if converged
         sigma = g.'*small_p + 0.5*small_p.'*Hv_WS(small_p,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda,indices,b);
         
     else
-        p1 = - (gamma^2)*v(1:n) / (g.'*v(n+1:2*n));
+        p1 = -sign(g.'*v(n+1:2*n))*gamma*v(1:n)/sqrt(v(1:n).'*v(1:n));
+        %p1 = - (gamma^2)*v(1:n) / (g.'*v(n+1:2*n));
         sigma = g.'*p1 + 0.5*p1.'*Hv(p1,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda);
     end
     [P1_1, P1_2, P1_bias1, P1_bias2] = m_to_M1M2(p1,n0,n1,n2);
