@@ -1,6 +1,25 @@
-function [] = testDermParams()
+function [] = testMNISTParams()
 
-[inputs,outputs] = getDermData();
+images = loadMNISTImages('train-images.idx3-ubyte');
+ 
+% labels: 60000 by 1 matrix (vector) of labels 
+labels = loadMNISTLabels('train-labels.idx1-ubyte');
+ 
+% number of inputs k0
+%k0 = 784;
+ 
+m = 60000;
+
+inputs = images(:,1:m);
+labels = labels(1:m);
+
+outputs = zeros(10,m);
+for i = 1:m
+    if (labels(i) == 0)
+        labels(i) = 10;
+    end
+    outputs(labels(i),i) = 1;
+end
 
 [n0,~] = size(inputs);
 n1 = 10;
@@ -18,17 +37,17 @@ bias2 = rand(n2,1) - 0.5;
 
 % test for b_w
 
-maxiter = 100000000;
-tofile = false;
+maxiter = 10000000;
+tofile = true;
 b_m_mini = 0;
-b_m_big = 0;
+b_m_big = 1000;
 lr = 0;
 GD = false;
 WS = true;
-MS = 0;
+MS = 2;
 TRMstep = true;
-for b_w = 5:10:50
-    file = fopen(strcat('results/testb_w_Derm',int2str(b_w),'.txt'),'w');
+for b_w = 10:20:110
+    file = fopen(strcat('results/testb_w_MNIST',int2str(b_w),'.txt'),'w');
     [~,~,~,~] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);
 end
 
@@ -37,7 +56,7 @@ MS = 1;
 TRMstep = false;
 for i = -5:2
     lr = 10^(i);
-    file = fopen(strcat('results/test_LR_Derm',int2str(i),'.txt'),'w');
+    file = fopen(strcat('results/test_LR_MNIST',int2str(i),'.txt'),'w');
     [~,~,~,~] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);
 end
 
@@ -46,7 +65,7 @@ MS = 2;
 TRMstep = false;
 lr = 1;
 for b_m_mini = 3:3:12
-    file = fopen(strcat('results/testb_m_mini_Derm',int2str(b_m_mini),'.txt'),'w');
+    file = fopen(strcat('results/testb_m_mini_MNIST',int2str(b_m_mini),'.txt'),'w');
     [~,~,~,~] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);    
 end
 
@@ -54,8 +73,8 @@ WS = false;
 MS = 2;
 TRMstep = true;
 lr = 1;
-for b_m_big = 100:80:340
-    file = fopen(strcat('results/testb_m_big_Derm',int2str(b_m_big),'.txt'),'w');
+for b_m_big = 500:500:2500
+    file = fopen(strcat('results/testb_m_big_MNIST',int2str(b_m_big),'.txt'),'w');
     [~,~,~,~] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);    
 end
 
@@ -65,7 +84,7 @@ MS = 1;
 TRMstep = false;
 for i = -5:2
     lr = 10^(i);
-    file = fopen(strcat('results/testGDlr_Derm',int2str(i),'.txt'),'w');
+    file = fopen(strcat('results/testGDlr_MNIST',int2str(i),'.txt'),'w');
     [~,~,~,~] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);    
 end
 

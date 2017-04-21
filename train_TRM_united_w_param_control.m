@@ -1,4 +1,4 @@
-function [W1, W2, bias1, bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr, decay)
+function [W1, W2, bias1, bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr)
 
 [n0,m] = size(inputs);
 [n2,~] = size(outputs);
@@ -40,18 +40,35 @@ rho = 0;
 sigma = 0;
 step = 0;
 if tofile
-    fprintf(file,'TRM WS=%d, MS=%d, TRMstep=%d: ub=%f, lb=%f, grow=%f,shrink=%f, b_w=%d,b_m=%d, lr=%f, decay=%f, lambda=%f, n=%d, n0=%d, n1=%d, n2=%d, sub_tol=%f, sub_maxit=%d, tol=%e, m=%d \n',WS,MS,TRMstep,ub,lb,grow,shrink,b_w,b_m,lr,decay,lambda,n,n0,n1,n2,sub_tol,sub_maxit,tol,m);
+    fprintf(file,'TRM WS=%d, MS=%d, TRMstep=%d: ub=%f, lb=%f, grow=%f,shrink=%f, b_w=%d,b_m=%d, lr=%f, lambda=%f, n=%d, n0=%d, n1=%d, n2=%d, sub_tol=%f, sub_maxit=%d, tol=%e, m=%d \n',WS,MS,TRMstep,ub,lb,grow,shrink,b_w,b_m,lr,lambda,n,n0,n1,n2,sub_tol,sub_maxit,tol,m);
     fprintf(file,'time, iter_t, subset_m_time, g_time, subset_w_time, p1_time, t2, t3, total error, total gmag, rho, sigma, gamma, step, approx error, approx gmag \n');
 end
 rolling_t = 0;
-if MS > 0
+if MS > 0 && TRMstep == false
     gamma = lr;
 end
+
+if MS == 1 || (MS == 2 && TRMstep == false)
+    is = randperm(m,m);
+    if MS == 2
+        check_interval = min(m/b_m_mini,b_m_big);
+    else
+        check_interval = min(m,b_m_big);
+    end
+    interval_sum = 0;
+    nearly_converged = 0;
+    last_error_avg = 0;
+end
+
 for k = 1:maxiter
     if MS == 1
         [g_total,~,~,~,~,~,~,~,full_error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
         tic
-        i = randi(m);
+        idx = mod(k,m);
+        if idx == 0
+            idx = m;
+        end
+        i = is(idx);
         input_set = inputs(:,i);
         output_set = outputs(:,i);
         subset_m_time = toc;
@@ -69,11 +86,11 @@ for k = 1:maxiter
         end
     end
     
-    disp('a');     
+            
     tic
     [g_full,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,last_error] = getG(W1,W2,bias1,bias2,input_set,output_set,lambda,num);
     g_time = toc;
-    disp('b');
+    
 
     
     if WS
@@ -91,8 +108,6 @@ for k = 1:maxiter
         subset_w_time = 0;
     end
     
-    disp('c');
-    
     if GD
         tic
         p1 = -gamma*g_full;
@@ -102,8 +117,6 @@ for k = 1:maxiter
         [p1, sigma_p1, next_error1, valid_p1] = getP1(g,gamma,W1,W2,bias1,bias2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,input_set,output_set,lambda,WS,indices,b_w,sub_tol,sub_maxit);
         p1_time = toc; 
     end
-    
-    disp('d');
 
     if TRMstep
         tic
@@ -145,14 +158,14 @@ for k = 1:maxiter
 
         if rho > lb && sigma < 0
             [W1,W2,bias1,bias2] = addP(p,n0,n1,n2,W1,W2,bias1,bias2);
-            if rho > ub
+            if rho > ub && gamma*grow < inf
                 gamma = gamma*grow;
             end
         else
             gamma = gamma*shrink;
         end
         
-        if ((1/m)*sqrt(g.'*g) < tol)
+        if ((1/m)*sqrt(g_full.'*g_full) < tol)
             break;
         end
         t3 = toc;
@@ -162,11 +175,27 @@ for k = 1:maxiter
         t2 = toc;
         % some update schedule
         tic
-        gamma = lr / (1 + decay*k);
-        % some stopping condition
-        if gamma < 10^(-2)
-            break;
+        
+        interval_sum = interval_sum + last_error;
+        if mod(k,check_interval) == 0
+            error_avg = interval_sum / (check_interval*n2);
+            interval_sum = 0;
+            diff = last_error_avg - error_avg;
+            if diff <= 10^-3 && last_error_avg > 0 
+                if nearly_converged > 2
+                    break;
+                else
+                    nearly_converged = nearly_converged + 1;
+                    gamma = gamma / 2;
+                end
+            else
+                nearly_converged = 0;
+            end
+
+            last_error_avg = error_avg;
         end
+        
+
         t3 = toc;
        
     end

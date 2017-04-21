@@ -3,13 +3,10 @@ function [] = testNURS()
 [inputs,outputs] = getNurseryParams();
 
 [n0,~] = size(inputs);
+
+
 n1 = 10;
-n2 = 5;
-
-% make sure to include a bias
-
-
-n = n0*n1 + n1*n2 + n1 + n2;
+[n2,~] = size(outputs);
 
 
 % + 1 for the bias
@@ -27,109 +24,106 @@ fprintf(file_weights,'%f \n',w);
 
 
 
-maxiter = 10000000;
-if false
-    %-------------------- test SGD -----------------------------------------
-    disp('test SGD');
-    WS = false;
-    MS = 1;
-    TRMstep = false;
-    tofile = true;
-    GD = true;
-    file = fopen('results/NURS_SGD.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
+maxiter = 1000000;
 
-    %----------------- test MBGD -----------------------------------------
-    disp('test MBGD');
-    WS = false;
-    MS = 2;
-    TRMstep = false;
-    tofile = true;
-    GD = true;
-    file = fopen('results/NURS_MBGD.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
+sgd_lr = 1;
+lr = 0.01;
+b_w = 25;
+b_m_mini = 6;
+b_m_big = 1700;
+% for STRM - lr = 1.5
+
+  
 
 
-    %---------------------- no longer GD-----------------------------------
-    GD = false;
-    %----------------------------------------------------------------------
+%-------------------- test SGD -----------------------------------------
+GD = true;
+disp('test SGD');
+WS = false;
+MS = 1;
+TRMstep = false;
+tofile = true;
+file = fopen('results/NURS_SGD.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, sgd_lr);
+print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
-    %---------------------- test TRM_WS ------------------------------------
-    disp('test TRM_WS');
-    WS = true;
-    MS = 0;
-    TRMstep = true;
-    tofile = true;
-    file = fopen('results/NURS_TRM_WS.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
-
-    %---------------------- test STRM ------------------------------------
-    disp('test STRM');
-    WS = false;
-    MS = 1;
-    TRMstep = false;
-    tofile = true;
-    file = fopen('results/NURS_STRM.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
+%----------------- test MBGD -----------------------------------------
+disp('test MBGD');
+WS = false;
+MS = 2;
+TRMstep = false;
+file = fopen('results/NURS_MBGD.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, b_m_mini*sgd_lr);
+print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
 
+%---------------------- no longer GD-----------------------------------
+GD = false;
 
-    %---------------------- test STRM_WS ------------------------------------
-    disp('test STRM_WS');
-    WS = true;
-    MS = 1;
-    TRMstep = false;
-    tofile = true;
-    file = fopen('results/NURS_STRM_WS.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
-    
-    %---------------------- test MBTRM_WS ------------------------------------
-    GD = false;
-    disp('test MBTRM_WS');
-    WS = true;
-    MS = 2;
-    TRMstep = false;
-    tofile = true;
-    file = fopen('results/NURS_MBTRM_WS.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
-    
-    %---------------------- test BTRM_WS ------------------------------------
-    disp('test BTRM_WS');
-    WS = true;
-    MS = 2;
-    TRMstep = true;
-    tofile = true;
-    file = fopen('results/NURS_BTRM_WS.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file); 
+%----------------------------------------------------------------------
 
-end
+%---------------------- test TRM_WS ------------------------------------
+disp('test TRM_WS');
+WS = true;
+MS = 0;
+TRMstep = true;
+file = fopen('results/NURS_TRM_WS.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);
+print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
-if true
-    %---------------------- test BTRM ------------------------------------
-    GD = false;
-    disp('test BTRM');
-    WS = false;
-    MS = 2;
-    TRMstep = true;
-    tofile = true;
-    file = fopen('results/NURS_BTRM.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);    
+%---------------------- test STRM ------------------------------------
+disp('test STRM');
+WS = false;
+MS = 1;
+TRMstep = false;
+file = fopen('results/NURS_STRM.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);
+print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
-    %---------------------- test MBTRM ------------------------------------
-    disp('test MBTRM');
-    WS = false;
-    MS = 2;
-    TRMstep = false;
-    tofile = true;
-    file = fopen('results/NURS_MBTRM.txt','w');
-    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
-end
+%---------------------- test MBTRM ------------------------------------
+disp('test MBTRM');
+WS = false;
+MS = 2;
+TRMstep = false;
+file = fopen('results/NURS_MBTRM.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, b_m_mini*lr);
+print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2, true, file);
+
+%---------------------- test STRM_WS ------------------------------------
+disp('test STRM_WS');
+WS = true;
+MS = 1;
+TRMstep = false;
+file = fopen('results/NURS_STRM_WS.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);
+print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2, true, file);
+
+%---------------------- test MBTRM_WS ------------------------------------
+disp('test MBTRM_WS');
+WS = true;
+MS = 2;
+TRMstep = false;
+file = fopen('results/NURS_MBTRM_WS.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, b_m_mini*lr);
+print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2, true, file);
+
+
+%---------------------- test BTRM_WS ------------------------------------
+disp('test BTRM_WS');
+WS = true;
+MS = 2;
+TRMstep = true;
+file = fopen('results/NURS_BTRM_WS.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);
+print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2, true, file); 
+
+
+%---------------------- test BTRM ------------------------------------
+GD = false;
+disp('test BTRM');
+WS = false;
+MS = 2;
+TRMstep = true;
+file = fopen('results/NURS_BTRM.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr);
+print_accuracy2(inputs, outputs, final_W1, final_W2, final_bias1, final_bias2, true, file);  

@@ -14,7 +14,6 @@ converged = true;
 try
     if WS
         M1 = [zeros(b), eye(b); eye(b), zeros(b)];
-        disp('here');
         [v,~,flag] = eigs(@(x)M0x_WS(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, indices,lambda),2*b,-M1,1,'lr',options);
     else
         M1 = [zeros(n), eye(n); eye(n), zeros(n)];
