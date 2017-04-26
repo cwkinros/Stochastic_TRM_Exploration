@@ -1,4 +1,8 @@
-function [W1, W2, bias1, bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr)
+function [W1, W2, bias1, bias2, full_error] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr)
+
+if bias1 == false
+    bias2 = false;
+end
 
 [n0,m] = size(inputs);
 [n2,~] = size(outputs);
@@ -8,6 +12,7 @@ h1s = zeros(n1,m);
 g1s = zeros(n1,m);
 h2s = zeros(n2,m);
 g2s = zeros(n2,m);
+
 
 %TRM params
 ub = 0.8;
@@ -58,11 +63,23 @@ if MS == 1 || (MS == 2 && TRMstep == false)
     interval_sum = 0;
     nearly_converged = 0;
     last_error_avg = 0;
+    current_min = inf;
+    since_last_min = 0;
 end
+
+if GD_TRM
+    last_min = 0;
+    current_min = inf;
+    %using a rolling average
+end
+
+
 
 for k = 1:maxiter
     if MS == 1
-        [g_total,~,~,~,~,~,~,~,full_error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
+        if mod(k,100) == 0;
+            [g_total,~,~,~,~,~,~,~,full_error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
+        end
         tic
         idx = mod(k,m);
         if idx == 0
@@ -73,7 +90,9 @@ for k = 1:maxiter
         output_set = outputs(:,i);
         subset_m_time = toc;
     else if MS == 2
-            [g_total,~,~,~,~,~,~,~,full_error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
+            if mod(k,100) == 0;
+                [g_total,~,~,~,~,~,~,~,full_error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
+            end
             tic
             is = randperm(m,b_m);
             input_set = inputs(:,is);
@@ -159,10 +178,14 @@ for k = 1:maxiter
         if rho > lb && sigma < 0
             [W1,W2,bias1,bias2] = addP(p,n0,n1,n2,W1,W2,bias1,bias2);
             if rho > ub && gamma*grow < inf
-                gamma = gamma*grow;
+                gamma = max(gamma,sqrt(p.'*p)*grow);
             end
         else
-            gamma = gamma*shrink;
+
+           gamma = gamma*shrink;
+           if gamma == 0
+               disp('AAHH');
+           end
         end
         
         if ((1/m)*sqrt(g_full.'*g_full) < tol)
@@ -182,20 +205,22 @@ for k = 1:maxiter
             interval_sum = 0;
             diff = last_error_avg - error_avg;
             if diff <= 10^-3 && last_error_avg > 0 
-                if nearly_converged > 2
+                if nearly_converged > 2 || since_last_min > 10
                     break;
                 else
+                    since_last_min = since_last_min + 1;
                     nearly_converged = nearly_converged + 1;
-                    gamma = gamma / 2;
+                    gamma = gamma/2;
                 end
             else
                 nearly_converged = 0;
             end
-
+            if error_avg < current_min
+                current_min = error_avg;
+                since_last_min = 0;
+            end
             last_error_avg = error_avg;
         end
-        
-
         t3 = toc;
        
     end

@@ -1,6 +1,6 @@
 function [inputs,outputs] = getDermData()
 
-table = readtable('dermatology.txt');
+table = readtable('dermatology.txt','ReadVariableNames',false);
 
 % delete age column since it is not full
 table(:,34)=[];

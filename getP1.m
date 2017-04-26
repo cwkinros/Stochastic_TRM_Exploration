@@ -11,6 +11,9 @@ options.tol = tol;
 n = n2*(n1 + 1) + n1*(n0 + 1);
 [~,m] = size(inputs);
 converged = true;
+if gamma == 0
+    disp('WHATT');
+end
 try
     if WS
         M1 = [zeros(b), eye(b); eye(b), zeros(b)];

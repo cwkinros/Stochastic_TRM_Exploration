@@ -41,7 +41,9 @@ else
 %        end
 %    end
 end
-
+if sqrt(p0.'*p0) == 0
+    flag = 1;
+end
 valid = false;
 sigma = 0;
 next_error0 = inf;

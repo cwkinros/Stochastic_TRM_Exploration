@@ -1,0 +1,2 @@
+sgdlr, lr, bw, bmmini, bmbig 
+1, 1.000000e-01, 55, 7, 50
