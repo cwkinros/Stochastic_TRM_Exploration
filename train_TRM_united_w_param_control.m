@@ -1,7 +1,10 @@
 function [W1, W2, bias1, bias2, full_error] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr)
 
-if bias1 == false
-    bias2 = false;
+if isnan(bias1);
+    bias2 = NaN;
+    nobias = true;
+else
+    nobias = false;
 end
 
 [n0,m] = size(inputs);
@@ -19,9 +22,13 @@ ub = 0.8;
 lb = 0.2;
 grow = 2.0;
 shrink = 0.5;
-n = n0*n1 + n1*n2 + n1 + n2;
-gamma = 1;
+if nobias
+    n = n0*n1 + n1*n2;
+else
+    n = n0*n1 + n1*n2 + n1 + n2;
+end
 
+gamma = 1;
 
 if TRMstep
     b_m = b_m_big;
@@ -45,7 +52,7 @@ rho = 0;
 sigma = 0;
 step = 0;
 if tofile
-    fprintf(file,'TRM WS=%d, MS=%d, TRMstep=%d: ub=%f, lb=%f, grow=%f,shrink=%f, b_w=%d,b_m=%d, lr=%f, lambda=%f, n=%d, n0=%d, n1=%d, n2=%d, sub_tol=%f, sub_maxit=%d, tol=%e, m=%d \n',WS,MS,TRMstep,ub,lb,grow,shrink,b_w,b_m,lr,lambda,n,n0,n1,n2,sub_tol,sub_maxit,tol,m);
+    fprintf(file,'TRM WS=%d, MS=%d, TRMstep=%d: ub=%f, lb=%f, grow=%f,shrink=%f, b_w=%d,b_m=%d, lr=%f, lambda=%f, n=%d, n0=%d, n1=%d, n2=%d, sub_tol=%f, sub_maxit=%d, tol=%e, m=%d, nobias=%d \n',WS,MS,TRMstep,ub,lb,grow,shrink,b_w,b_m,lr,lambda,n,n0,n1,n2,sub_tol,sub_maxit,tol,m,nobias);
     fprintf(file,'time, iter_t, subset_m_time, g_time, subset_w_time, p1_time, t2, t3, total error, total gmag, rho, sigma, gamma, step, approx error, approx gmag \n');
 end
 rolling_t = 0;
@@ -67,17 +74,13 @@ if MS == 1 || (MS == 2 && TRMstep == false)
     since_last_min = 0;
 end
 
-if GD_TRM
-    last_min = 0;
-    current_min = inf;
-    %using a rolling average
-end
+
 
 
 
 for k = 1:maxiter
     if MS == 1
-        if mod(k,100) == 0;
+        if true%mod(k,100) == 1;
             [g_total,~,~,~,~,~,~,~,full_error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
         end
         tic
@@ -90,7 +93,7 @@ for k = 1:maxiter
         output_set = outputs(:,i);
         subset_m_time = toc;
     else if MS == 2
-            if mod(k,100) == 0;
+            if true%mod(k,100) == 1;
                 [g_total,~,~,~,~,~,~,~,full_error] = getG(W1,W2,bias1,bias2,inputs,outputs,lambda,m);
             end
             tic
@@ -174,7 +177,7 @@ for k = 1:maxiter
         end
 
         rho = (next_error - last_error) / sigma;         
-
+        
         if rho > lb && sigma < 0
             [W1,W2,bias1,bias2] = addP(p,n0,n1,n2,W1,W2,bias1,bias2);
             if rho > ub && gamma*grow < inf

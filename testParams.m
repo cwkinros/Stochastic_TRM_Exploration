@@ -1,4 +1,4 @@
-function [] = testParams(dataset,sgd_lr_range,lr_range,b_w_range,b_m_mini_range,b_m_big_range,maxiter,revision)
+function [] = testParams(dataset,sgd_lr_range,lr_range,b_w_range,b_m_mini_range,b_m_big_range,maxiter,revision,wbias,n1)
 
 if revision
     params = readtable(strcat('results/',dataset,'params_results.txt'));
@@ -16,7 +16,7 @@ if sgd_lr_range ~= false
     min = inf;
     i = sgd_lr_range(1);
     while true
-        error = run_test(dataset,10^i,0,0,0,0,'SGD',true,'sgd_lr',i,maxiter);
+        error = run_test(dataset,10^i,0,0,0,0,'SGD',true,'sgd_lr',i,maxiter,wbias,n1);
         if error < min
             min = error;
             sgd_lr = 10^i;
@@ -32,7 +32,7 @@ if lr_range ~= false
     min = inf;
     i = lr_range(1);
     while true
-        error = run_test(dataset,0,10^i,0,0,0,'STRM',true,'lr',i,maxiter);
+        error = run_test(dataset,0,10^i,0,0,0,'STRM',true,'lr',i,maxiter,wbias,n1);
         if error < min
             min = error;
             lr = 10^i;
@@ -49,7 +49,7 @@ if b_m_mini_range ~= false
     i = b_m_mini_range(1);
     while true
         % error = inf if b_m_mini > m
-        error = run_test(dataset,0,lr,0,i,0,'MBTRM',true,'b_m_mini',i,maxiter);
+        error = run_test(dataset,0,lr,0,i,0,'MBTRM',true,'b_m_mini',i,maxiter,wbias,n1);
         if error < min
             min = error;
             b_m_mini = i;
@@ -65,7 +65,7 @@ if b_m_big_range ~= false
     i = b_m_big_range(1);
     while true
         % error = inf if b_m_mini > m
-        error = run_test(dataset,0,0,0,0,i,'BTRM',true,'b_m_big',i,maxiter);
+        error = run_test(dataset,0,0,0,0,i,'BTRM',true,'b_m_big',i,maxiter,wbias,n1);
         if error < min
             min = error;
             b_m_big = i;
@@ -81,7 +81,7 @@ if b_w_range ~= false
     i = b_w_range(1);
     while true
         % error = inf if b_m_mini > m
-        error = run_test(dataset,0,lr,i,0,b_m_big,'TRM_WS',true,'b_w',i,maxiter);
+        error = run_test(dataset,0,lr,i,0,b_m_big,'TRM_WS',true,'b_w',i,maxiter,wbias,n1);
         if error < min
             min = error;
             b_w = i;

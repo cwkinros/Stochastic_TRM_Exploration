@@ -9,5 +9,5 @@ bias1 = rand(n1,1) - 0.5;
 bias2 = rand(n2,1) - 0.5;
 
 w = M1M2_to_m(W1,W2,bias1,bias2);
-file_weights = fopen(strcat('results/',dataset,'_initialWeights.txt'),'w');
+file_weights = fopen(strcat(dataset,'_initialWeights.txt'),'w');
 fprintf(file_weights,'%f \n',w);

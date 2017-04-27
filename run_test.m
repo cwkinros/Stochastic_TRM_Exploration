@@ -1,4 +1,4 @@
-function [error] = run_test(dataset,sgd_lr,lr,b_w,b_m_mini,b_m_big,tests,testparams,var,val,maxiter)
+function [error] = run_test(dataset,sgd_lr,lr,b_w,b_m_mini,b_m_big,tests,testparams,var,val,maxiter, wbias, n1)
 
 if strcmp('MNIST',dataset)
     [inputs,outputs] = getMNISTdata();
@@ -10,8 +10,11 @@ else if strcmp('Derm',dataset)
                 [inputs,outputs] = getNurseryParams();
             else if strcmp('Habe',dataset)
                     [inputs,outputs] = getHabermanData();
-                else
-                    disp(strcat('The dataset: ', dataset, ' is not available!'));
+                else if strcmp('XOR',dataset)
+                        [inputs,outputs] = getXORdata();
+                    else
+                        disp(strcat('The dataset: ', dataset, ' is not available!'));
+                    end
                 end
             end
         end
@@ -20,10 +23,15 @@ end
 
             
 [n0,m] = size(inputs);
-n1 = 10;
+if n1 == 0
+    n1 = 10;
+end
 [n2,~] = size(outputs);
-
-n = n2*(n1 + 1) + n1*(n0 + 1);
+if wbias
+    n = n2*(n1 + 1) + n1*(n0 + 1);
+else
+    n = n2*n1 + n1*n0;
+end
 
 if b_m_mini > m || b_m_big > m || b_w > n
     error = inf;
@@ -32,9 +40,12 @@ end
 
 weights_filename = strcat(dataset,'_initialWeights.txt');
 [W1,W2,bias1,bias2] = getWeightsFromFile(weights_filename,n0,n1,n2);
+if wbias == false
+    bias1 = NaN;
+    bias2 = NaN;
+end
 
-
-tofile =true;
+tofile = true;
 
 [~,len] = size(tests);
 i = 1;

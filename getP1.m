@@ -8,7 +8,13 @@ options.tol = tol;
 
 [n1,n0] = size(W1);
 [n2,~] = size(W2);
-n = n2*(n1 + 1) + n1*(n0 + 1);
+if isnan(bias1)
+    bias = false;
+    n = n2*n1 + n1*n0;
+else
+    bias = true;
+    n = n2*(n1 + 1) + n1*(n0 + 1);
+end
 [~,m] = size(inputs);
 converged = true;
 if gamma == 0
@@ -38,7 +44,7 @@ if converged
         for i = 1:b
             p1(indices(i)) = small_p(i);
         end 
-        sigma = g.'*small_p + 0.5*small_p.'*Hv_WS(small_p,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda,indices,b);
+        sigma = g.'*small_p + 0.5*small_p.'*Hv_WS(small_p,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda,indices,b,bias);
         
     else
         p1 = -sign(g.'*v(n+1:2*n))*gamma*v(1:n)/sqrt(v(1:n).'*v(1:n));

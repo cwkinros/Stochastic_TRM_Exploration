@@ -6,19 +6,33 @@ c1 = n0;
 r2 = n2;
 c2 = n1;
 
-M1 = zeros(r1,c1);
-bias1 = zeros(r1,1);
+[n,~] = size(m);
+if n == n1*n0 + n2*n1
+    hasbias = false;
+else
+    hasbias = true;
+end
 
+M1 = zeros(r1,c1);
 M2 = zeros(r2,c2);
-bias2 = zeros(r2,1);
+if hasbias
+    bias1 = zeros(r1,1);
+    bias2 = zeros(r2,1);
+else
+    bias1 = NaN;
+    bias2 = NaN;
+end
+
 count = 1;
 for i = 1:r1
     for j = 1:c1
         M1(i,j) = m(count);
         count = count + 1;
     end
-    bias1(i) = m(count);
-    count = count + 1;
+    if hasbias
+        bias1(i) = m(count);
+        count = count + 1;
+    end
 end
 
 for i = 1:r2
@@ -26,6 +40,8 @@ for i = 1:r2
         M2(i,j) = m(count);
         count = count + 1;
     end
-    bias2(i) = m(count);
-    count = count + 1;
+    if hasbias
+        bias2(i) = m(count);
+        count = count + 1;
+    end
 end
