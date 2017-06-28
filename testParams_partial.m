@@ -1,4 +1,4 @@
-function [good2go,sgd_lr_range,lr_range,b_w_range,b_m_mini_range,b_m_big_range] = testParams_partial(dataset,sgd_lr_range,lr_range,b_w_range,b_m_mini_range,b_m_big_range,maxiter)
+function [] = testParams_partial(dataset,sgd_lr_range,lr_range,b_w_range,b_m_mini_range,b_m_big_range,maxiter)
 
 params = readtable(strcat('results/',dataset,'params_results.txt'));
 sgd_lr = params.sgdlr;

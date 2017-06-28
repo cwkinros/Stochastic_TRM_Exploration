@@ -1,5 +1,21 @@
 
 
-% for running tests on Derm
-testParams('IRIS',[-4,1],[-4,1],[5,5],[5,5],[50,50],5000, false)
-run_w_params('IRIS','SGD MBGD TRM TRM_WS BTRM BTRM_WS MBTRM MBTRM_WS STRM STRM_WS');
+% for running tests on MNIST
+%maxiter = 10000;
+%testParams('MNIST',false,false,false,[20,20],false,[-3,1],[-3,1],[20,20],maxiter,true, 10);
+
+maxiter = 10;
+%run_w_params_plus_test('MNIST','TRM',maxiter,1000);
+run_w_params_plus_test('MNIST','TRM',maxiter,2);
+
+%run_w_params_plus_test('MNIST','TRM',maxiter,2);
+%run_w_params_plus_test('MNIST','TRM',maxiter,3);
+%run_w_params_plus_test('MNIST','TRM',maxiter,4);
+%run_w_params_plus_test('MNIST','TRM',maxiter,5);
+
+
+
+
+
+
+

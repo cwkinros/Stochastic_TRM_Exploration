@@ -1,22 +1,16 @@
 function [inputs,outputs] = getMNISTdata()
 
-images = loadMNISTImages('train-images.idx3-ubyte');
- 
-% labels: 60000 by 1 matrix (vector) of labels 
-labels = loadMNISTLabels('train-labels.idx1-ubyte');
-
-m = 60000;
-disp('down sampling');
-inputs = downsample_mnist(images(:,1:m));
-disp('finished down sampling');
-labels = labels(1:m);
-
-outputs = zeros(10,m);
-for i = 1:m
-    if (labels(i) == 0)
-        labels(i) = 10;
-    end
-    outputs(labels(i),i) = 1;
+file = fopen('mnist_inputs.txt','r');
+st = '';
+for i = 1:99
+    st = strcat(st,'%f ,');
 end
+st = strcat(st,'%f \n');
 
-% make sure to include a bias
+
+inputs = fscanf(file,st,[100,60000]);
+fclose(file);
+
+file = fopen('mnist_outputs.txt','r');
+outputs = fscanf(file,'%f, %f, %f, %f, %f, %f, %f, %f, %f, %f \n',[10,60000]);
+fclose(file);

@@ -1,1 +1,1 @@
-sgdlr, lr, bw, bmmini, bmbig 
+sgdlr, sgdlrmb, lr, lrmb, bw, bmmini, bmbig 

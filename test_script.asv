@@ -1,5 +1,0 @@
-
-
-% for running tests on Derm
-testParams('IRIS',[-3,1,0],[-3,1,0],[10,10,50],[25,25,100],[100,200,500],5000)
-run_w_params('IRIS','TRM');

@@ -1,4 +1,4 @@
-function [error] = run_test(dataset,sgd_lr,lr,b_w,b_m_mini,b_m_big,tests,testparams,var,val,maxiter, wbias, n1)
+function [error, rolling_t] = run_test(dataset,sgd_lr,sgd_lr_mb,lr,lr_mb,b_w,b_m_mini,b_m_mini_MBGD,b_m_big,tests,testparams,var,val,maxiter,n1,sub_maxit_val, altern, time_lim)
 
 if strcmp('MNIST',dataset)
     [inputs,outputs] = getMNISTdata();
@@ -21,7 +21,7 @@ else if strcmp('Derm',dataset)
     end
 end
 
-            
+wbias = true;     
 [n0,m] = size(inputs);
 if n1 == 0
     n1 = 10;
@@ -57,7 +57,7 @@ while i <= len
     test = tests(start:i-1);
     i = i + 1;
     
-    [WS,MS,TRMstep,GD,gamma] = getParams(test,lr,sgd_lr,b_m_mini);
+    [WS,MS,TRMstep,GD,gamma,b_m_mini_general] = getParams(test,lr,sgd_lr,lr_mb,sgd_lr_mb,b_m_mini,b_m_mini_MBGD);
     if tofile
         if testparams
             file = fopen(strcat('results/test',var,'_',dataset,num2str(val),'.txt'),'w');
@@ -67,7 +67,7 @@ while i <= len
     else 
         file = 0;
     end
-    [final_W1, final_W2, final_bias1, final_bias2, error] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, gamma);
+    [final_W1, final_W2, final_bias1, final_bias2, error, rolling_t] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini_general, b_m_big, gamma, sub_maxit_val,[],[],altern,time_lim);
     print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2,tofile, file);
     w_final = M1M2_to_m(final_W1,final_W2,final_bias1,final_bias2);
     if testparams
@@ -81,13 +81,13 @@ end
 
 
 
-function [WS,MS,TRMstep,GD,gamma] = getParams(test,lr,sgd_lr,b_m_mini)
+function [WS,MS,TRMstep,GD,gamma,b_m_mini_general] = getParams(test,lr,sgd_lr,lr_mb,sgd_lr_mb,b_m_mini,b_m_mini_MBGD)
 WS = false;
 MS = 0;
 TRMstep = false;
 GD = false;
 gamma = 1;
-
+b_m_mini_general = b_m_mini;
 if strcmp(test,'BTRM_WS')
     WS = true;
     MS = 2;
@@ -102,7 +102,8 @@ else if strcmp(test,'BTRM')
         else if strcmp(test,'MBGD')
                 MS = 2;
                 GD = true;
-                gamma = b_m_mini*sgd_lr;
+                b_m_mini_general = b_m_mini_MBGD;
+                gamma = sgd_lr_mb;
             else if strcmp(test,'TRM')
                     TRMstep = true;
                 else if strcmp(test,'TRM_WS')
@@ -117,13 +118,31 @@ else if strcmp(test,'BTRM')
                                 gamma = lr;
                             else if strcmp(test,'MBTRM')
                                     MS = 2;
-                                    gamma = lr*b_m_mini;
+                                    gamma = lr_mb;
                                 else if strcmp(test,'MBTRM_WS')
                                         WS = true;
                                         MS = 2;
-                                        gamma = lr*b_m_mini;
-                                    else
-                                        disp(strcat('Method: ',test,' is not covered'));
+                                        gamma = lr_mb;
+                                    else if strcmp(test,'TRM_MBGD')
+                                            GD = true;
+                                            TRMstep = true;
+                                            MS = 2;
+                                            b_m_mini_general = b_m_mini_MBGD;
+                                            gamma = sgd_lr_mb;
+                                        else if strcmp(test,'STRM_NC')
+                                                MS = 1;
+                                                gamma = lr;       
+                                        
+                                            else if strcmp(test,'GD')
+                                                    GD = true;
+                                                    gamma = sgd_lr;
+                                                else
+                                                disp(strcat('Method: ',test,' is not covered'));
+                                            
+                                                end
+                                            end
+                                        
+                                        end
                                     end
                                 end
                             end
