@@ -2,19 +2,22 @@
 n0 = 2;
 n1 = 2;
 n2 = 1;
-%testParams('XOR',[-4,1],[-4,1],[2,1],[2,1],[3,1],5000, false, n1)
+% testParams('XOR',[-4,1],[-4,1],[2,1],[2,1],[3,1],[-4,1],[-4,1],[2,1],5000, false, n1)
 % we want to test for robustness so this needs to happen many times
 % we're going to write this custom based on run_test
 %tests = 'SGD MBGD TRM TRM_WS BTRM BTRM_WS MBTRM MBTRM_WS STRM STRM_WS';
-tests = 'BTRM BTRM_WS TRM_WS';
+tests = 'SGD MBGD TRM_MBGD TRM TRM_WS BTRM BTRM_WS MBTRM MBTRM_WS STRM STRM_WS';
 tofile = true;
 dataset = 'XOR';
 
 params = readtable(strcat('results/',dataset,'params_results.txt'));
 sgd_lr = params.sgdlr;
+sgd_lr_mb = params.sgdlrmb;
 lr = params.lr;
+lr_mb = params.lrmb;
 b_w = params.bw;
 b_m_mini = params.bmmini;
+b_m_mini_MBGD = params.bmmini_MBGD;
 b_m_big = params.bmbig;
 
 
@@ -53,16 +56,16 @@ for k = 1:100
             test = tests(start:i-1);
             i = i + 1;
 
-            [WS,MS,TRMstep,GD,gamma] = getParams(test,lr,sgd_lr,b_m_mini);
+            [WS,MS,TRMstep,GD,gamma,b_m_mini_general] = getParams(test,lr,sgd_lr,lr_mb,sgd_lr_mb,b_m_mini,b_m_mini_MBGD);
             if tofile
-                file = fopen(strcat('results/',dataset,'_',test,'weights',num2str(k),'trial',num2str(j),'.txt'),'w');
+                file = fopen(strcat('results/XOR/',dataset,'_',test,'weights',num2str(k),'trial',num2str(j),'.txt'),'w');
             else 
                 file = 0;
             end
-            [final_W1, final_W2, final_bias1, final_bias2, error] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, gamma);
+            [final_W1, final_W2, final_bias1, final_bias2, error] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini_general, b_m_big, gamma, 0, [],[],true,10*60);
             print_accuracy_XOR(inputs, final_W1, final_W2, final_bias1, final_bias2,tofile, file);
             w_final = M1M2_to_m(final_W1,final_W2,final_bias1,final_bias2);
-            final_weights = fopen(strcat('results/',dataset,'_',test,'weights',num2str(k),'trial',num2str(j),'_finalw.txt'),'w');
+            final_weights = fopen(strcat('results/XOR/',dataset,'_',test,'weights',num2str(k),'trial',num2str(j),'_finalw.txt'),'w');
             fprintf(final_weights,'%d \n',w_final);
             fclose(final_weights);
             if tofile

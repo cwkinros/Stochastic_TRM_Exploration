@@ -18,9 +18,10 @@ TRMstep = true;
 GD = false;
 
 
-for i = 1:4
-    for tries = 1:3
-        file = fopen(strcat('results/test_p0_type',int2str(i),'_trial',int2str(tries),'.txt'),'w');
+for j = 1:5
+	i = 6 - j;
+    for tries = 1:10
+        file = fopen(strcat('results/test_p0_type_IRIS',int2str(i),'_trial',int2str(tries),'.txt'),'w');
         [final_W1, final_W2, final_bias1, final_bias2, error] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, gamma,i);
         print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2,tofile, file);
         fclose(file);

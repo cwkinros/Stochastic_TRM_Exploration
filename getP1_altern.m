@@ -3,7 +3,7 @@ function [p1,sigma, converged] = getP1_altern(H,g,gamma,n,WS,indices,b,tol,maxit
 
 options.maxit = maxiter;
 options.isreal = 1;
-options.issym = 0;
+options.issym = 1;
 options.tol = tol;
 
 converged = true;
@@ -22,13 +22,13 @@ try
         M1 = sparse(2*b);
         M1(b+1:2*b,1:b) = speye(b);
         M1(1:b,b+1:2*b) = speye(b);
-        [v,~,flag] = eigs(M0,-M1,1,'lr',options);
+        [v,~,flag] = eigs(M0,M1,1,'sa',options);
     else
         %M1 = [zeros(n), eye(n); eye(n), zeros(n)];
         M1 = sparse(2*n);
         M1(n+1:2*n,1:n) = speye(n);
         M1(1:n,n+1:2*n) = speye(n);
-        [v,~,flag] = eigs(M0,-M1,1,'lr',options);
+        [v,~,flag] = eigs(M0,M1,1,'sa',options);
     end
     v = real(v);
     if flag > 0

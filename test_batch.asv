@@ -1,0 +1,23 @@
+function [] = test_lr_decay()
+
+%using a drop based schedule as described below
+% http://machinelearningmastery.com/using-learning-rate-schedules-deep-learning-models-python-keras/
+
+%---------------------- test STRM ------------------------------------
+disp('test STRM');
+WS = false;
+MS = 1;
+TRMstep = false;
+tofile = true;
+b_w = 0;
+b_m_mini = 0;
+b_m_big = 0;
+a = 0; 
+b = 0;
+% note m = 350
+for b_m_mini = 1:2:30
+    disp(b_m_mini);
+    file = fopen(strcat('results/STRM',int2str(b_m_mini),'.txt'),'w');
+    [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, a, b);
+    print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
+end

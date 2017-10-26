@@ -1,0 +1,13 @@
+function [W1, W2, bias1, bias2] = train_TRM_united(WS,MS,TRMstep,inputs, outputs, W1, W2, bias1, bias2, n1_given, maxiter, tofile, file)
+
+[~,n0] = size(W1);
+[n2,n1] = size(W2);
+n = n2*(n1 + 1) + n1*(n0 + 1);
+
+b_w = round(n*0;
+b_m_mini = 5;
+b_m_big = 50;
+lr = 1.7;
+decay = 10^(-4);
+
+[W1, W2, bias1, bias2] = train_TRM_united_w_param_control(WS,MS,TRMstep,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, lr, decay);

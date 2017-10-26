@@ -2,7 +2,7 @@ function [p1,sigma, converged] = getP1(g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s
 
 options.maxit = maxiter;
 options.isreal = 1;
-options.issym = 0;
+options.issym = 1;
 options.tol = tol;
 
 [n1,n0] = size(W1);
@@ -10,7 +10,7 @@ options.tol = tol;
 
 n = n2*(n1 + 1) + n1*(n0 + 1);
 converged = true;
-if gamma == 0
+if gamma == 0 || maxiter == 0
     disp('WHATT');
 end
 incomplete = true;
@@ -21,13 +21,20 @@ while incomplete
             M1 = sparse(2*b);
             M1(b+1:2*b,1:b) = speye(b);
             M1(1:b,b+1:2*b) = speye(b);
-            [v,~,flag] = eigs(@(x)M0x_WS(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, indices,lambda),2*b,-M1,1,'lr',options);
+            [v,d,flag] = eigs(@(x)M0x_WS(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, indices,lambda),2*b,M1,1,'lm',options);
+            if real(d) > 0
+                [v,~,flag] = eigs(@(x)(M0x_WS(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs, indices,lambda)+M1*ones(2*b,1)*d),2*b,M1,1,'sm',options);
+            end
         else
             %M1 = [zeros(n), eye(n); eye(n), zeros(n)];
             M1 = sparse(2*n);
             M1(n+1:2*n,1:n) = speye(n);
             M1(1:n,n+1:2*n) = speye(n);
-            [v,~,flag] = eigs(@(x)M0x(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda),2*n,-M1,1,'lr',options);
+            
+            [v,d,flag] = eigs(@(x)M0x(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda),2*n,M1,1,'lm',options);
+            if real(d) > 0
+                [v,~,flag] = eigs(@(x)(M0x(x,g,gamma,W1,W2,g1s,g1_1s,g2_1s,g2_2s,g1_2s,dg1s,dg2s,inputs,lambda)+M1*ones(2*n,1)*d),2*n,M1,1,'sm',options);
+            end
         end
         v = real(v);
         if flag > 0
@@ -37,6 +44,7 @@ while incomplete
         end
         incomplete = false;
     catch
+        disp('had to shrink gamma');
         gamma = gamma*shrink;
     end
 end

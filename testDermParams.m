@@ -18,8 +18,8 @@ bias2 = rand(n2,1) - 0.5;
 
 % test for b_w
 
-maxiter = 100000000;
-tofile = false;
+maxiter = 5000;
+tofile = true;
 b_m_mini = 0;
 b_m_big = 0;
 lr = 0;

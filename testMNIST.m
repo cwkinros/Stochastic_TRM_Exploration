@@ -43,7 +43,7 @@ fprintf(file_weights,'%f \n',w);
 
 
 
-maxiter = 10000000;
+maxiter = 100000;
 
 %-------------------- test SGD -----------------------------------------
 disp('test SGD');
@@ -52,7 +52,7 @@ MS = 1;
 TRMstep = false;
 tofile = true;
 GD = true;
-file = fopen('results/MNIST_SGD.txt','w');
+file = fopen('results/MNIST_SGDnode6.txt','w');
 [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
 print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
@@ -63,7 +63,7 @@ MS = 2;
 TRMstep = false;
 tofile = true;
 GD = true;
-file = fopen('results/MNIST_MBGD.txt','w');
+file = fopen('results/MNIST_MBGDnode6.txt','w');
 [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
 print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
@@ -72,15 +72,6 @@ print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true
 GD = false;
 %----------------------------------------------------------------------
 
-%---------------------- test TRM_WS ------------------------------------
-disp('test TRM_WS');
-WS = true;
-MS = 0;
-TRMstep = true;
-tofile = true;
-file = fopen('results/MNIST_TRM_WS.txt','w');
-[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
 %---------------------- test STRM ------------------------------------
 disp('test STRM');
@@ -88,7 +79,7 @@ WS = false;
 MS = 1;
 TRMstep = false;
 tofile = true;
-file = fopen('results/MNIST_STRM.txt','w');
+file = fopen('results/MNIST_STRMnode6.txt','w');
 [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
 print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
@@ -98,7 +89,7 @@ WS = false;
 MS = 2;
 TRMstep = false;
 tofile = true;
-file = fopen('results/MNIST_MBTRM.txt','w');
+file = fopen('results/MNIST_MBTRMnode6.txt','w');
 [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
 print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
@@ -108,7 +99,7 @@ WS = true;
 MS = 1;
 TRMstep = false;
 tofile = true;
-file = fopen('results/MNIST_STRM_WS.txt','w');
+file = fopen('results/MNIST_STRM_WSnode6.txt','w');
 [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
 print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
@@ -118,7 +109,28 @@ WS = true;
 MS = 2;
 TRMstep = false;
 tofile = true;
-file = fopen('results/MNIST_MBTRM_WS.txt','w');
+file = fopen('results/MNIST_MBTRM_WSnode6.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
+print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
+
+
+%---------------------- test BTRM_WS ------------------------------------
+disp('test BTRM_WS');
+WS = true;
+MS = 2;
+TRMstep = true;
+tofile = true;
+file = fopen('results/MNIST_BTRM_WSnode6.txt','w');
+[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
+print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file); 
+
+%---------------------- test TRM_WS ------------------------------------
+disp('test TRM_WS');
+WS = true;
+MS = 0;
+TRMstep = true;
+tofile = true;
+file = fopen('results/MNIST_TRM_WSnode6.txt','w');
 [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
 print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);
 
@@ -128,18 +140,6 @@ WS = false;
 MS = 2;
 TRMstep = true;
 tofile = true;
-file = fopen('results/MNIST_BTRM.txt','w');
+file = fopen('results/MNIST_BTRMnode6.txt','w');
 [final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
 print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file);    
-
-%---------------------- test BTRM_WS ------------------------------------
-disp('test BTRM_WS');
-WS = true;
-MS = 2;
-TRMstep = true;
-tofile = true;
-file = fopen('results/MNIST_BTRM_WS.txt','w');
-[final_W1, final_W2, final_bias1, final_bias2] = train_TRM_united(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file);
-print_accuracy(inputs,labels, final_W1, final_W2, final_bias1, final_bias2, true, file); 
-
-

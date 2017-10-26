@@ -1,0 +1,2 @@
+TRM WS=0, MS=0, TRMstep=1: ub=0.800000, lb=0.200000, grow=2.000000,shrink=0.500000, b_w=0,b_m=0, lr=1.000000, lambda=1.000000e-10, n=1120, n0=100, n1=10, n2=10, sub_tol=0.001000, sub_maxit=1000, tol=1.000000e-08, m=60000 , altern=0 
+time, iter_t, subset_m_time, g_time, subset_w_time, p1_time, t2, t3, H_time, total error, total gmag, rho, sigma, gamma, step, approx error, approx gmag, train accuracy, test accuracy 

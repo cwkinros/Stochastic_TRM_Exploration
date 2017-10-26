@@ -23,7 +23,7 @@ end
 
 [n0,~] = size(inputs);
 n1 = 10;
-n2 = 6;
+[n2,~] = size(outputs);
 
 n = n2*(n1 + 1) + n1*(n0 + 1);
 
@@ -37,7 +37,7 @@ bias2 = rand(n2,1) - 0.5;
 
 % test for b_w
 
-maxiter = 10000000;
+maxiter = 5000;
 tofile = true;
 b_m_mini = 0;
 b_m_big = 1000;

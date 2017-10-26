@@ -20,6 +20,8 @@ else if strcmp('Derm',dataset)
     end
 end
 
+trials = 100;
+
 wbias = true;     
 [n0,m] = size(inputs);
 if n1 == 0
@@ -28,10 +30,15 @@ end
 [n2,~] = size(outputs);
 
 b_m = round(0.2*m);
-test_indices = randperm(m,b_m);
-test_inputs = inputs(:,test_indices);
-test_outputs = outputs(:,test_indices);
 
+actual_inputs = inputs;
+actual_outputs = outputs;
+
+test_indices = randperm(m,b_m);
+test_inputs = actual_inputs(:,test_indices);
+test_outputs = actual_outputs(:,test_indices);
+inputs = actual_inputs;
+outputs = actual_outputs;
 inputs(:,test_indices) = [];
 outputs(:,test_indices) = [];
 
@@ -73,24 +80,34 @@ while i <= len
     else
         sub_maxiter = 0;
     end
-    if tofile
-        if testparams
-            file = fopen(strcat('results/test',var,'_',dataset,num2str(val),'.txt'),'w');
-        else
-            file = fopen(strcat('results/',dataset,'_',test,'.txt'),'w');
+
+    for t = 1:trials
+        test_indices = randperm(m,b_m);
+        test_inputs = actual_inputs(:,test_indices);
+        test_outputs = actual_outputs(:,test_indices);
+        inputs = actual_inputs;
+        outputs = actual_outputs;
+        inputs(:,test_indices) = [];
+        outputs(:,test_indices) = [];
+        if tofile
+            if testparams
+                file = fopen(strcat('results/test',var,'_',dataset,num2str(val),'.txt'),'w');
+            else
+                file = fopen(strcat('results/',dataset,'_',test,int2str(t),'.txt'),'w');
+            end
+        else 
+            file = 0;
         end
-    else 
-        file = 0;
+        [final_W1, final_W2, final_bias1, final_bias2, error] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, gamma, sub_maxit_val, test_inputs,test_outputs);
+        print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2,tofile, file);
+        w_final = M1M2_to_m(final_W1,final_W2,final_bias1,final_bias2);
+        if testparams
+           final_weights = fopen(strcat('results/test',var,'_',dataset,num2str(val),'_finalw.txt'),'w');
+        else
+           final_weights = fopen(strcat('results/',dataset,'_',test,int2str(t),'_finalw.txt'),'w');
+        end
+        fprintf(final_weights,'%d \n',w_final);
     end
-    [final_W1, final_W2, final_bias1, final_bias2, error] = train_TRM_united_w_param_control(WS,MS,TRMstep,GD,inputs, outputs, W1, W2, bias1, bias2, n1, maxiter, tofile, file, b_w, b_m_mini, b_m_big, gamma, sub_maxit_val, test_inputs,test_outputs);
-    print_accuracy2(inputs,outputs, final_W1, final_W2, final_bias1, final_bias2,tofile, file);
-    w_final = M1M2_to_m(final_W1,final_W2,final_bias1,final_bias2);
-    if testparams
-       final_weights = fopen(strcat('results/test',var,'_',dataset,num2str(val),'_finalw.txt'),'w');
-    else
-       final_weights = fopen(strcat('results/',dataset,'_',test,'_finalw.txt'),'w');
-    end
-    fprintf(final_weights,'%d \n',w_final);
 end
     
 
